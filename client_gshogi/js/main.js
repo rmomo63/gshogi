@@ -15,18 +15,28 @@ var manImage = [];
 var skinName = "skin1";
 
 // 駒の種類の配列
-var manType = [
-	"taisho", "chusho", "shosho",
-	"taisa", "chusa", "shosa",
-	"taii", "chui", "shoi",
-	"hikoki", "tank", "jirai",
-	"supai", "kihei", "gunki",
-	"kohei",
-];
+var manType = [];
 
 function init(){
 	console.log("--init start--");
     var canvas = document.getElementById('shogi');
+    
+    manType.push(new Man('taisho', 'normal', 1));
+    manType.push(new Man('chusho', 'normal', 1));
+    manType.push(new Man('shosho', 'normal', 1));
+    manType.push(new Man('taisa', 'normal', 1));
+    manType.push(new Man('chusa', 'normal', 1));
+    manType.push(new Man('shosa', 'normal', 1));
+    manType.push(new Man('taii', 'normal', 2));
+    manType.push(new Man('chui', 'normal', 2));
+    manType.push(new Man('shoi', 'normal', 2));
+    manType.push(new Man('hikoki', 'air', 2));
+    manType.push(new Man('tank', 'tank', 2));
+    manType.push(new Man('jirai', 'immobile', 2));
+    manType.push(new Man('supai', 'normal', 1));
+    manType.push(new Man('kihei', 'normal', 1));
+    manType.push(new Man('gunki', 'immobile', 1));
+    manType.push(new Man('kohei', 'kohei', 2));
 	
 	$.when(
 		load()
@@ -43,7 +53,7 @@ function load(){
 	var name = [];
 	var tmp = [];
 	for(man in manType){
-		name = manType[man];
+		name = manType[man].name;
 		tmp = new Image();
 		tmp.id = getUniqueStr();
 		tmp.src = "img/" + skinName + "/" + name +".png";
@@ -127,6 +137,14 @@ function _calcY2game(x, y){
 
 /* マス目を描画する */
 function fieldDraw(ctx){
+	
+	// 盤の色
+	ctx.beginPath();
+	ctx.fillStyle = '#ad692e';
+	ctx.fillRect(0, 0, FIELD_SIZE*FIELD_X, FIELD_SIZE*FIELD_Y);
+	ctx.fill();
+	
+	ctx.strokeStyle = '#493a04';
     for(i=0; i<= FIELD_X; i++){
         ctx.beginPath();
     	if(i != (FIELD_NONE_BY_SHIRE-1)){
@@ -150,33 +168,33 @@ function fieldDraw(ctx){
 	
 	/* 壁の描画 */
 	ctx.beginPath();
-	ctx.moveTo(FIELD_PADDING_X, FIELD_PADDING_Y+FIELD_SIZE*4-2);
-    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*1, FIELD_PADDING_Y+FIELD_SIZE*4-2);
+	ctx.moveTo(FIELD_PADDING_X, FIELD_PADDING_Y+FIELD_SIZE*4-1);
+    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*1, FIELD_PADDING_Y+FIELD_SIZE*4-1);
     ctx.closePath();
     ctx.stroke();
 	ctx.beginPath();
-	ctx.moveTo(FIELD_PADDING_X, FIELD_PADDING_Y+FIELD_SIZE*4+2);
-    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*1, FIELD_PADDING_Y+FIELD_SIZE*4+2);
+	ctx.moveTo(FIELD_PADDING_X, FIELD_PADDING_Y+FIELD_SIZE*4+1);
+    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*1, FIELD_PADDING_Y+FIELD_SIZE*4+1);
     ctx.closePath();
     ctx.stroke();
 	ctx.beginPath();
-	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*2, FIELD_PADDING_Y+FIELD_SIZE*4-2);
-    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*4, FIELD_PADDING_Y+FIELD_SIZE*4-2);
+	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*2, FIELD_PADDING_Y+FIELD_SIZE*4-1);
+    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*4, FIELD_PADDING_Y+FIELD_SIZE*4-1);
     ctx.closePath();
     ctx.stroke();
 	ctx.beginPath();
-	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*2, FIELD_PADDING_Y+FIELD_SIZE*4+2);
-    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*4, FIELD_PADDING_Y+FIELD_SIZE*4+2);
+	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*2, FIELD_PADDING_Y+FIELD_SIZE*4+1);
+    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*4, FIELD_PADDING_Y+FIELD_SIZE*4+1);
     ctx.closePath();
     ctx.stroke();
 	ctx.beginPath();
-	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*5, FIELD_PADDING_Y+FIELD_SIZE*4-2);
-    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*6, FIELD_PADDING_Y+FIELD_SIZE*4-2);
+	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*5, FIELD_PADDING_Y+FIELD_SIZE*4-1);
+    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*6, FIELD_PADDING_Y+FIELD_SIZE*4-1);
     ctx.closePath();
     ctx.stroke();
 	ctx.beginPath();
-	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*5, FIELD_PADDING_Y+FIELD_SIZE*4+2);
-    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*6, FIELD_PADDING_Y+FIELD_SIZE*4+2);
+	ctx.moveTo(FIELD_PADDING_X+FIELD_SIZE*5, FIELD_PADDING_Y+FIELD_SIZE*4+1);
+    ctx.lineTo(FIELD_PADDING_X+FIELD_SIZE*6, FIELD_PADDING_Y+FIELD_SIZE*4+1);
     ctx.closePath();
     ctx.stroke();
 	
@@ -184,46 +202,39 @@ function fieldDraw(ctx){
 
 function testMen(){
 	var men = [];
-	// var manType = [
-	// 	"taisho", "chusho", "shosho",
-	// 	"taisa", "chusa", "shosa",
-	// 	"taii", "chui", "shoi",
-	// 	"hikoki", "tank", "jirai",
-	// 	"supai", "kihei", "gunki",
-	// 	"kohei",
-	// ];
-	
 	var hand = [];
-	hand.push(manType[0]);
-	hand.push(manType[1]);
-	hand.push(manType[2]);
-	hand.push(manType[3]);
-	hand.push(manType[4]);
-	hand.push(manType[5]);
-	hand.push(manType[6]);
-	hand.push(manType[6]);
-	hand.push(manType[7]);
-	hand.push(manType[7]);
-	hand.push(manType[8]);
-	hand.push(manType[8]);
-	hand.push(manType[9]);
-	hand.push(manType[9]);
-	hand.push(manType[10]);
-	hand.push(manType[10]);
-	hand.push(manType[11]);
-	hand.push(manType[11]);
-	hand.push(manType[12]);
-	hand.push(manType[13]);
-	hand.push(manType[14]);
-	hand.push(manType[15]);
-	hand.push(manType[15]);
+	
+	for(m in manType){
+		var target = manType[m];
+		
+		for(i=0; i<target.num; i++)
+			hand.push(target);
+	}
 	
 	shuffle(hand);
 	
 	var i=1, j=5;
 	for(man in hand){
-		// TODO 特殊な動きをするときは違うクラスにするように変更
-		men.push(new normalMan(hand[man], i++, j));
+		switch(hand[man].type){
+			case 'normal':
+				men.push(new normalMan(hand[man].name, i++, j));
+				break;
+			case  'air':
+				men.push(new airMan(hand[man].name, i++, j));
+				break;
+			case 'tank':
+				men.push(new tankMan(hand[man].name, i++, j));
+				break;
+			case 'immobile':
+				men.push(new immobileMan(hand[man].name, i++, j));
+				break;
+			case 'kohei':
+				men.push(new koheiMan(hand[man].name, i++, j));
+				break;
+			default:
+				console.log('ERROR');
+				break;
+		}
 		
 		if(i%FIELD_X == 1){
 			i=1; j++;
@@ -242,7 +253,7 @@ function testMen(){
 function getUniqueStr(myStrong){
 	var strong = 1000;
 	if (myStrong) strong = myStrong;
-	return new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16)
+	return new Date().getTime().toString(16) + Math.floor(strong*Math.random()).toString(16);
 }
 
 // 配列をシャッフルする
@@ -298,6 +309,27 @@ var airMan = function(name, x, y){
 	this.y = y;
 	this.name = name;
 	
+	function canMove(_x, _y){
+		if(x==_x) return true;
+		
+		// 司令塔にいる場合
+		if(x==3 && y==8){
+			if(x==4 && y!=1) return true;
+		}
+		
+		//司令塔に入るとき
+		if(x==3 || x==4){
+			if((_y==1 || _y==8) && (x==3)){
+				return true;
+			}
+		}
+		
+		// 横方向
+		if(Math.abs(x - _x) + Math.abs(y - _y) == 1) return true;
+		
+		return false;
+	}
+	
 	function canPut(_x, _y){
 		return true;
 	}
@@ -306,6 +338,16 @@ var tankMan = function(name, x, y){
 	this.x = x;
 	this.y = y;
 	this.name = name;
+	
+	function canMove(_x, _y){
+		// 周囲1マス
+		if(Math.abs(x - _x) + Math.abs(y - _y) == 1) return true;
+		
+		// 前方2マス
+		if((_x - x == 2) && (y== _y)) return true;
+		
+		return false;
+	}
 	
 	function canPut(_x, _y){
 		return true;
@@ -316,6 +358,12 @@ var koheiMan = function(name, x, y){
 	this.y = y;
 	this.name = name;
 	
+	function canMove(_x, _y){
+		if(x==_x || y==_y) return true;
+		
+		return false;
+	}
+	
 	function canPut(_x, _y){
 		return true;
 	}
@@ -325,7 +373,15 @@ var immobileMan = function(name, x, y){
 	this.y = y;
 	this.name = name;
 	
+	function canMove(_x, _y){
+		return false;
+	}
+	
 	function canPut(_x, _y){
+		if(y==5){
+			if(x==2 || x==5) return false;
+		}
+		return true;
 	}
 }
 
