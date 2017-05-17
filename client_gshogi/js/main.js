@@ -1,4 +1,15 @@
+window.onload	= function(){
+	cvs = document.getElementById("shogi");
+	ctx = cvs.getContext( "2d" );
+	setQuality( 3 );
+	
+	init();
+}
+
 // 設定
+var cvs;
+var ctx;
+
 var FIELD_X = 6;
 var FIELD_Y = 8;
 var FIELD_SIZE = 50;
@@ -12,15 +23,21 @@ var MAN_SIZE_H = 45;
 
 // 駒の画像を保持する
 var manImage = [];
-var skinName = "skin1";
+var skinName = "skin2";
 
 // 駒の種類の配列
 var manType = [];
+var field = [];
 
 function init(){
 	console.log("--init start--");
-    var canvas = document.getElementById('shogi');
     
+    // 盤面の配列
+    for(i=0;i<FIELD_Y;i++){
+    	field[i] = [];
+    }
+    
+    /* 初期手札の準備 */
     manType.push(new Man('taisho', 'normal', 1));
     manType.push(new Man('chusho', 'normal', 1));
     manType.push(new Man('shosho', 'normal', 1));
@@ -41,8 +58,8 @@ function init(){
 	$.when(
 		load()
 	).done(function(){
-		draw(canvas, testMen());
-		canvas.addEventListener('click', onClick, false);
+		draw(testMen());
+		cvs.addEventListener('click', onClick, false);
 	});
 	
 	console.log("--init end--");
@@ -64,35 +81,56 @@ function load(){
 	console.log("--load end--");
 }
 
-function draw(canvas, men){
+function draw(_field, man = null){
 	console.log("--draw start--");
     
-    if (canvas.getContext){
-    	var ctx = canvas.getContext('2d');
-    	ctx.scale(2,2);
-	    // 盤面の表示
-	    fieldDraw(ctx);
-	    
-	    // 駒の表示
-	    manDraw(ctx, men);
+    fieldDraw();
+    
+    if(man != null){
+    	canMoveFieldDraw(man);
     }
+    
+    // 駒の表示
+    manDraw(_field);
     
     console.log("--draw end--")
 }
 
-function manDraw(ctx, men){
-	for(i in men){
-		man = men[i];
-		putMan(ctx, man);
+// 動ける駒の場所を表示
+function canMoveFieldDraw(man){
+	console.log(man.name + '('+ man.x + ', ' + man.y + ') can move ...');
+	for(x=1;x<=FIELD_X;x++){
+		for(y=1;y<=FIELD_Y;y++){
+			// 司令塔の部分は判定しない．
+			if((x==FIELD_NONE_BY_SHIRE && y==1) || (x==FIELD_NONE_BY_SHIRE && y==FIELD_Y)) continue;
+			
+			// 動ける場合は薄い色を出す．
+			if(!field[x][y] && man.canMove(x, y)){
+				console.log('('+x+', ' +y+')');
+				ctx.beginPath();
+				ctx.fillStyle = '#efb888';
+				ctx.fillRect((x-1)*FIELD_SIZE+1, (y-1)*FIELD_SIZE+1, FIELD_SIZE-2, FIELD_SIZE-2);
+				ctx.fill();
+			}
+		}
+	}
+}
+
+function manDraw(men){
+	for(x in men){
+		for(y in men[x]){
+			man = men[x][y];
+			putMan(man);
+		}
 	}
 }
 
 /* 駒を座標に配置する */
-function putMan(ctx, man){
+function putMan(man){
 	var image = manImage[man.name];
-	console.log(image + " put " + "(x:" + man.x + ", y:" + man.y + ")");
-	
+	ctx.drawImage(manImage[man.name], _calcX2canvas(man.x, man.y), _calcY2canvas(man.x, man.y), MAN_SIZE_W, MAN_SIZE_H);
     manImage[man.name].addEventListener('load', function() {
+		console.log(man.name + " put " + "(x:" + man.x + ", y:" + man.y + ")");
 		ctx.drawImage(manImage[man.name], _calcX2canvas(man.x, man.y), _calcY2canvas(man.x, man.y), MAN_SIZE_W, MAN_SIZE_H);
     }, false);
 }
@@ -102,8 +140,11 @@ function onClick(e){
     var rect = e.target.getBoundingClientRect();
     var clickX = e.clientX - rect.left;
     var clickY = e.clientY - rect.top;
-    console.log("x: " + _calcX2game(clickX) +", y: " + _calcY2game(clickY));
+    
+    var clickX2game = _calcX2game(clickX, clickY);
+    var clickY2game = _calcY2game(clickX, clickY);
 
+	draw(field, field[clickX2game][clickY2game]);
 	$("#result").text("You clicked (x: " + _calcX2game(clickX, clickY) + ",y: " + _calcY2game(clickX, clickY) + ")");
 }
 
@@ -136,7 +177,7 @@ function _calcY2game(x, y){
 }
 
 /* マス目を描画する */
-function fieldDraw(ctx){
+function fieldDraw(){
 	
 	// 盤の色
 	ctx.beginPath();
@@ -217,19 +258,24 @@ function testMen(){
 	for(man in hand){
 		switch(hand[man].type){
 			case 'normal':
-				men.push(new normalMan(hand[man].name, i++, j));
+				// men.push(new normalMan(hand[man].name, i++, j));
+				field[i][j] = new normalMan(hand[man].name, i++, j);
 				break;
 			case  'air':
-				men.push(new airMan(hand[man].name, i++, j));
+				// men.push(new airMan(hand[man].name, i++, j));
+				field[i][j] = new airMan(hand[man].name, i++, j);
 				break;
 			case 'tank':
-				men.push(new tankMan(hand[man].name, i++, j));
+				// men.push(new tankMan(hand[man].name, i++, j));
+				field[i][j] = new tankMan(hand[man].name, i++, j);
 				break;
 			case 'immobile':
-				men.push(new immobileMan(hand[man].name, i++, j));
+				// men.push(new immobileMan(hand[man].name, i++, j));
+				field[i][j] = new immobileMan(hand[man].name, i++, j);
 				break;
 			case 'kohei':
-				men.push(new koheiMan(hand[man].name, i++, j));
+				// men.push(new koheiMan(hand[man].name, i++, j));
+				field[i][j] = new koheiMan(hand[man].name, i++, j);
 				break;
 			default:
 				console.log('ERROR');
@@ -239,12 +285,12 @@ function testMen(){
 		if(i%FIELD_X == 1){
 			i=1; j++;
 		}
-		if(j==FIELD_Y && i==FIELD_NONE_BY_SHIRE){
+		if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
 			i++;
 		}
 	}
 	
-	return men;
+	return field;
 }
 
 // 基礎関数
@@ -270,6 +316,12 @@ function shuffle(array) {
   return array;
 }
 
+function setQuality(value){
+	cvs.setAttribute("width", 300 * value);
+	cvs.setAttribute("height",400 * value);
+	ctx.scale( value, value );
+}
+
 // 駒の情報を格納
 var Man = function(name, type, num){
 	this.name = name;
@@ -278,17 +330,22 @@ var Man = function(name, type, num){
 }
 
 // 駒クラス
-var normalMan = function(name, x, y){
-	this.x = x;
-	this.y = y;
-	this.name = name;
+class normalMan{
+	constructor(name, x, y){
+		this._x = x;
+		this._y = y;
+		this._name = name;
+	}
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get name(){ return this._name; }
 	
-	function canMove(_x, _y){
+	canMove(_x, _y){
 		
 		// 壁を超える際は絶対値が1でもfalse
-		if(!(x==2 || x==5)) {
-			if(y==4 && _y==5) return false;
-			if(y==5 && _y==4) return false;
+		if(!(this._x==2 || this._x==5)) {
+			if(this._y==4 && _y==5) return false;
+			if(this._y==5 && _y==4) return false;
 		}
 		
 		// 司令塔の部分は1じゃなくても動ける可能性あり
@@ -296,90 +353,123 @@ var normalMan = function(name, x, y){
 			
 		// }
 		
-		if(Math.abs(x - _x) + Math.abs(y - _y) == 1) return true;
+		if(Math.abs(this._x - _x) + Math.abs(this._y - _y) == 1) return true;
 		else return false;
 	}
 	
-	function canPut(_x, _y){
+	canPut(_x, _y){
 		return true;
 	}
 };
-var airMan = function(name, x, y){
-	this.x = x;
-	this.y = y;
-	this.name = name;
+class airMan{
 	
-	function canMove(_x, _y){
-		if(x==_x) return true;
+	constructor(name, x, y){
+		this._x = x;
+		this._y = y;
+		this._name = name;
+	}
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get name(){ return this._name; }
+	
+	canMove(_x, _y){
+		if(this._x==_x) return true;
 		
 		// 司令塔にいる場合
-		if(x==3 && y==8){
-			if(x==4 && y!=1) return true;
+		if(this._x==3 && this._y==8){
+			if(this._x==4 && this._y!=1) return true;
 		}
 		
 		//司令塔に入るとき
-		if(x==3 || x==4){
-			if((_y==1 || _y==8) && (x==3)){
+		if(this._x==3 || this._x==4){
+			if((_y==1 || _y==8) && (this._x==3)){
 				return true;
 			}
 		}
 		
 		// 横方向
-		if(Math.abs(x - _x) + Math.abs(y - _y) == 1) return true;
+		if(Math.abs(this._x - _x) + Math.abs(this._y - _y) == 1) return true;
 		
 		return false;
 	}
 	
-	function canPut(_x, _y){
+	canPut(_x, _y){
 		return true;
 	}
 }
-var tankMan = function(name, x, y){
-	this.x = x;
-	this.y = y;
-	this.name = name;
+class tankMan{
+	constructor(name, x, y){
+		this._x = x;
+		this._y = y;
+		this._name = name;
+	}
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get name(){ return this._name; }
 	
-	function canMove(_x, _y){
+	canMove(_x, _y){
+		// 壁を超える際は絶対値が1でもfalse
+		if(!(this._x==2 || this._x==5)) {
+			if(this._y==4 && _y==5) return false;
+			if(this._y==5 && _y==4) return false;
+		}
+		
 		// 周囲1マス
-		if(Math.abs(x - _x) + Math.abs(y - _y) == 1) return true;
+		if(Math.abs(this._x - _x) + Math.abs(this._y - _y) == 1) return true;
 		
 		// 前方2マス
-		if((_x - x == 2) && (y== _y)) return true;
+		if((_x - this._x == 2) && (this._y== _y)) return true;
 		
 		return false;
 	}
 	
-	function canPut(_x, _y){
+	canPut(_x, _y){
 		return true;
 	}
 }
-var koheiMan = function(name, x, y){
-	this.x = x;
-	this.y = y;
-	this.name = name;
+class koheiMan{
+	constructor(name, x, y){
+		this._x = x;
+		this._y = y;
+		this._name = name;
+	}
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get name(){ return this._name; }
 	
-	function canMove(_x, _y){
-		if(x==_x || y==_y) return true;
+	canMove(_x, _y){
+		// 壁を超える際は絶対値が1でもfalse
+		if(!(this._x==2 || this._x==5)) {
+			if(this._y<=4 && _y>=5) return false;
+			if(this._y>=5 && _y<=4) return false;
+		}
+		
+		if(this._x==_x || this._y==_y) return true;
 		
 		return false;
 	}
 	
-	function canPut(_x, _y){
+	canPut(_x, _y){
 		return true;
 	}
 }
-var immobileMan = function(name, x, y){
-	this.x = x;
-	this.y = y;
-	this.name = name;
+class immobileMan{
+	constructor(name, x, y){
+		this._x = x;
+		this._y = y;
+		this._name = name;
+	}
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get name(){ return this._name; }
 	
-	function canMove(_x, _y){
+	canMove(_x, _y){
 		return false;
 	}
 	
-	function canPut(_x, _y){
-		if(y==5){
-			if(x==2 || x==5) return false;
+	canPut(_x, _y){
+		if(this._y==5){
+			if(this._x==2 || this._x==5) return false;
 		}
 		return true;
 	}
@@ -394,4 +484,3 @@ var Hand = function(man, coor){
 var field = function(){
 	
 };
-
