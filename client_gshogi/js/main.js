@@ -124,7 +124,8 @@ function canMoveFieldDraw(man){
 			if((x==FIELD_NONE_BY_SHIRE && y==1) || (x==FIELD_NONE_BY_SHIRE && y==FIELD_Y)) continue;
 			
 			// 動ける場合は薄い色を出す．
-			if(!field[x][y] && man.canMove(x, y)){
+			// if(!field[x][y] && man.canMove(x, y)){
+			if(man.canMove(x, y)){ // デバッグ用に全マス判定
 				console.log('('+x+', ' +y+')');
 				ctx.beginPath();
 				ctx.fillStyle = '#efb888';
@@ -465,7 +466,7 @@ class tankMan{
 		if(Math.abs(this._x - _x) + Math.abs(this._y - _y) == 1) return true;
 		
 		// 前方2マス
-		if((_x - this._x == 2) && (this._y== _y)) return true;
+		if((_x == this._x) && (this._y - _y == 2)) return true;
 		
 		return false;
 	}
