@@ -129,7 +129,7 @@ function canMoveFieldDraw(man){
 				console.log('('+x+', ' +y+')');
 				ctx.beginPath();
 				ctx.fillStyle = '#efb888';
-				ctx.fillRect((x-1)*FIELD_SIZE+1, (y-1)*FIELD_SIZE+1, FIELD_SIZE-2, FIELD_SIZE-2);
+				ctx.fillRect(_calcX2canvas(x, y), _calcY2canvas(x, y), MAN_SIZE_W, MAN_SIZE_H);
 				ctx.fill();
 			}
 		}
