@@ -27,15 +27,19 @@ var skinName = "skin2";
 
 // 駒の種類の配列
 var manType = [];
+
+// 自駒の配列
+var myMen = [];
+
+// 将棋盤の状況
 var field = [];
+
+// 現在の状態を保存しておく
+var stage = 0;
+var target = null;
 
 function init(){
 	console.log("--init start--");
-    
-    // 盤面の配列
-    for(i=0;i<FIELD_Y;i++){
-    	field[i] = [];
-    }
     
     /* 初期手札の準備 */
     manType.push(new Man('taisho', 'normal', 1));
@@ -58,7 +62,8 @@ function init(){
 	$.when(
 		load()
 	).done(function(){
-		draw(testMen());
+		testMen();
+		draw();
 		cvs.addEventListener('click', onClick, false);
 	});
 	
@@ -81,7 +86,7 @@ function load(){
 	console.log("--load end--");
 }
 
-function draw(_field, man = null){
+function draw(man = null){
 	console.log("--draw start--");
     
     fieldDraw();
@@ -91,9 +96,23 @@ function draw(_field, man = null){
     }
     
     // 駒の表示
-    manDraw(_field);
+    menToField();
+    manDraw();
     
     console.log("--draw end--")
+}
+
+// 手駒を盤面に配置する
+function menToField(){
+    // 盤面の配列初期化
+	field = [];
+    for(i=0;i<FIELD_Y;i++){
+    	field[i] = [];
+    }
+    
+	for(man in myMen){
+		field[myMen[man]._x][myMen[man]._y] = myMen[man];
+	}
 }
 
 // 動ける駒の場所を表示
@@ -105,21 +124,22 @@ function canMoveFieldDraw(man){
 			if((x==FIELD_NONE_BY_SHIRE && y==1) || (x==FIELD_NONE_BY_SHIRE && y==FIELD_Y)) continue;
 			
 			// 動ける場合は薄い色を出す．
-			if(!field[x][y] && man.canMove(x, y)){
+			// if(!field[x][y] && man.canMove(x, y)){
+			if(man.canMove(x, y)){ // デバッグ用に全マス判定
 				console.log('('+x+', ' +y+')');
 				ctx.beginPath();
 				ctx.fillStyle = '#efb888';
-				ctx.fillRect((x-1)*FIELD_SIZE+1, (y-1)*FIELD_SIZE+1, FIELD_SIZE-2, FIELD_SIZE-2);
+				ctx.fillRect(_calcX2canvas(x, y), _calcY2canvas(x, y), MAN_SIZE_W, MAN_SIZE_H);
 				ctx.fill();
 			}
 		}
 	}
 }
 
-function manDraw(men){
-	for(x in men){
-		for(y in men[x]){
-			man = men[x][y];
+function manDraw(){
+	for(x in field){
+		for(y in field[x]){
+			man = field[x][y];
 			putMan(man);
 		}
 	}
@@ -135,7 +155,6 @@ function putMan(man){
     }, false);
 }
 
-
 function onClick(e){
     var rect = e.target.getBoundingClientRect();
     var clickX = e.clientX - rect.left;
@@ -143,9 +162,30 @@ function onClick(e){
     
     var clickX2game = _calcX2game(clickX, clickY);
     var clickY2game = _calcY2game(clickX, clickY);
-
-	draw(field, field[clickX2game][clickY2game]);
+    
 	$("#result").text("You clicked (x: " + _calcX2game(clickX, clickY) + ",y: " + _calcY2game(clickX, clickY) + ")");
+
+	// 何もしていない場合は
+	if(stage==0){
+		if(field[clickX2game][clickY2game]){
+			draw(field[clickX2game][clickY2game]);
+			
+			stage = 1;
+			target = field[clickX2game][clickY2game];
+			$('#inst').text("You can move this piece");
+		} else {
+			$('#inst').text("Please click your piece");
+		}
+	} else if(stage==1){
+		if(target.canMove(clickX2game, clickY2game)){
+			target.move(clickX2game, clickY2game);
+		} else {
+			$('#inst').text("Cannot move clicked cell");
+		}
+		stage = 0;
+		target = null;
+		draw();
+	}
 }
 
 /* 駒の座標からcanvasの座標を計算する */
@@ -258,24 +298,19 @@ function testMen(){
 	for(man in hand){
 		switch(hand[man].type){
 			case 'normal':
-				// men.push(new normalMan(hand[man].name, i++, j));
-				field[i][j] = new normalMan(hand[man].name, i++, j);
+				myMen.push(new normalMan(hand[man].name, i++, j));
 				break;
 			case  'air':
-				// men.push(new airMan(hand[man].name, i++, j));
-				field[i][j] = new airMan(hand[man].name, i++, j);
+				myMen.push(new airMan(hand[man].name, i++, j));
 				break;
 			case 'tank':
-				// men.push(new tankMan(hand[man].name, i++, j));
-				field[i][j] = new tankMan(hand[man].name, i++, j);
+				myMen.push(new tankMan(hand[man].name, i++, j));
 				break;
 			case 'immobile':
-				// men.push(new immobileMan(hand[man].name, i++, j));
-				field[i][j] = new immobileMan(hand[man].name, i++, j);
+				myMen.push(new immobileMan(hand[man].name, i++, j));
 				break;
 			case 'kohei':
-				// men.push(new koheiMan(hand[man].name, i++, j));
-				field[i][j] = new koheiMan(hand[man].name, i++, j);
+				myMen.push(new koheiMan(hand[man].name, i++, j));
 				break;
 			default:
 				console.log('ERROR');
@@ -289,8 +324,6 @@ function testMen(){
 			i++;
 		}
 	}
-	
-	return field;
 }
 
 // 基礎関数
@@ -340,7 +373,15 @@ class normalMan{
 	get y(){ return this._y; }
 	get name(){ return this._name; }
 	
+	move(_x, _y){
+		this._x = _x;
+		this._y = _y;
+	}
+	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
 		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
@@ -372,7 +413,16 @@ class airMan{
 	get y(){ return this._y; }
 	get name(){ return this._name; }
 	
+	move(_x, _y){
+		this._x = _x;
+		this._y = _y;
+	}
+	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
+		
 		if(this._x==_x) return true;
 		
 		// 司令塔にいる場合
@@ -382,7 +432,7 @@ class airMan{
 		
 		//司令塔に入るとき
 		if(this._x==3 || this._x==4){
-			if((_y==1 || _y==8) && (this._x==3)){
+			if((_y==1 || _y==8) && (_x==3)){
 				return true;
 			}
 		}
@@ -407,7 +457,16 @@ class tankMan{
 	get y(){ return this._y; }
 	get name(){ return this._name; }
 	
+	move(_x, _y){
+		this._x = _x;
+		this._y = _y;
+	}
+	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
+		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
 			if(this._y==4 && _y==5) return false;
@@ -418,7 +477,7 @@ class tankMan{
 		if(Math.abs(this._x - _x) + Math.abs(this._y - _y) == 1) return true;
 		
 		// 前方2マス
-		if((_x - this._x == 2) && (this._y== _y)) return true;
+		if((_x == this._x) && (this._y - _y == 2)) return true;
 		
 		return false;
 	}
@@ -437,7 +496,21 @@ class koheiMan{
 	get y(){ return this._y; }
 	get name(){ return this._name; }
 	
+	move(_x, _y){
+		this._x = _x;
+		this._y = _y;
+	}
+	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
+		
+		for(i=this._x+1;i<_x;i++) if(field[i][_y]) return false;
+		for(i=this._x-1;i>_x;i--) if(field[i][_y]) return false;
+		for(i=this._y+1;i<_y;i++) if(field[_x][i]) return false;
+		for(i=this._y-1;i>_y;i--) if(field[_x][i]) return false;
+		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
 			if(this._y<=4 && _y>=5) return false;
@@ -462,6 +535,11 @@ class immobileMan{
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get name(){ return this._name; }
+	
+	move(_x, _y){
+		this._x = _x;
+		this._y = _y;
+	}
 	
 	canMove(_x, _y){
 		return false;
