@@ -379,6 +379,9 @@ class normalMan{
 	}
 	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
 		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
@@ -416,6 +419,10 @@ class airMan{
 	}
 	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
+		
 		if(this._x==_x) return true;
 		
 		// 司令塔にいる場合
@@ -456,6 +463,10 @@ class tankMan{
 	}
 	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
+		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
 			if(this._y==4 && _y==5) return false;
@@ -491,6 +502,15 @@ class koheiMan{
 	}
 	
 	canMove(_x, _y){
+		// 駒があるところは移動不可能
+		// TODO 相手の駒は取れるようにする．
+		if(field[_x][_y]) return false;
+		
+		for(i=this._x+1;i<_x;i++) if(field[i][_y]) return false;
+		for(i=this._x-1;i>_x;i--) if(field[i][_y]) return false;
+		for(i=this._y+1;i<_y;i++) if(field[_x][i]) return false;
+		for(i=this._y-1;i>_y;i--) if(field[_x][i]) return false;
+		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
 			if(this._y<=4 && _y>=5) return false;
