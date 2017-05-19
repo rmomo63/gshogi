@@ -6,15 +6,17 @@ var Man = function(id, type, num){
 }
 
 class myMan{
-	constructor(id, x, y){
+	constructor(id, uid, x, y){
 		this._x = x;
 		this._y = y;
 		this._id = id;
+		this._uid = uid;
 		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get id(){ return this._id; }
+	get uid(){ return this._uid; }
 	get name(){ return SHOGI_EN[this._id]; }
 	get JPname(){ return SHOGI_JA[this._id]; }
 	get live(){ return this._live; }
