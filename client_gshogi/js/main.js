@@ -183,14 +183,13 @@ function onClick(e){
 				if(eMan.name == SHOGI.GUNKI && clickY2game != 1 &&
 					field[clickX2game][clickY2game-1] && !field[clickX2game][clickY2game-1].user){
 					
-					console.log('gunki ->' + eMan.name);
 					tMan = field[clickX2game][clickY2game-1];
-					
+					console.log('gunki ->' + tMan.name);
 				// 司令塔の場合
 				} else if (clickY2game == 2 && clickX2game == FIELD_NONE_BY_SHIRE && !field[clickX2game-1][clickY2game-1].user){
 					
-					console.log('gunki ->' + eMan.name);
 					tMan = field[FIELD_NONE_BY_SHIRE-1][1];
+					console.log('gunki ->' + tMan.name);
 					
 				} else {
 					tMan = eMan;
