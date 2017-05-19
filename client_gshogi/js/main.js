@@ -6,38 +6,6 @@ window.onload	= function(){
 	init();
 }
 
-// 設定
-var cvs;
-var ctx;
-
-var FIELD_X = 6;
-var FIELD_Y = 8;
-var FIELD_SIZE = 50;
-var FIELD_PADDING_X = 0;
-var FIELD_PADDING_Y = 0;
-
-var FIELD_NONE_BY_SHIRE = 4; // 司令塔により削除されているマス
-
-var MAN_SIZE_W = 40;
-var MAN_SIZE_H = 45;
-
-// 駒の画像を保持する
-var manImage = [];
-var skinName = "skin2";
-
-// 駒の種類の配列
-var manType = [];
-
-// 自駒の配列
-var myMen = [];
-
-// 将棋盤の状況
-var field = [];
-
-// 現在の状態を保存しておく
-var stage = 0;
-var target = null;
-
 function init(){
 	console.log("--init start--");
     
@@ -110,6 +78,10 @@ function menToField(){
     	field[i] = [];
     }
     
+	for(man in enemyMen){
+		field[enemyMen[man]._x][enemyMen[man]._y] = enemyMen[man];
+	}
+	
 	for(man in myMen){
 		field[myMen[man]._x][myMen[man]._y] = myMen[man];
 	}
@@ -129,7 +101,7 @@ function canMoveFieldDraw(man){
 			if(man.canMove(x, y)){ // デバッグ用に全マス判定
 				console.log('('+x+', ' +y+')');
 				ctx.beginPath();
-				ctx.fillStyle = '#efb888';
+				ctx.fillStyle = '#efefef';
 				ctx.fillRect(_calcX2canvas(x, y), _calcY2canvas(x, y), MAN_SIZE_W, MAN_SIZE_H);
 				ctx.fill();
 				canMoveCnt++;
@@ -147,6 +119,7 @@ function manDraw(){
 	for(x in field){
 		for(y in field[x]){
 			man = field[x][y];
+			console.log('x:' + x + ', y:' + y + ' ) user:' + field[x][y].user);
 			putMan(man);
 		}
 	}
@@ -174,7 +147,7 @@ function onClick(e){
 
 	// 何もしていない場合は
 	if(stage==0){
-		if(field[clickX2game][clickY2game]){
+		if(field[clickX2game][clickY2game].user){
 			stage = 1;
 			target = field[clickX2game][clickY2game];
 			$('#inst').text("You can move this piece");
@@ -263,6 +236,8 @@ function fieldDraw(){
 	
 }
 
+// ここは多分2人プレイのときはサーバーでやる処理．
+// 
 function testMen(){
 	var men = [];
 	var hand = [];
@@ -276,6 +251,7 @@ function testMen(){
 	
 	shuffle(hand);
 	
+	// 自駒をランダムに配置
 	var i=1, j=5;
 	for(man in hand){
 		switch(hand[man].type){
@@ -293,6 +269,39 @@ function testMen(){
 				break;
 			case 'kohei':
 				myMen.push(new koheiMan(hand[man].name, i++, j));
+				break;
+			default:
+				console.log('ERROR');
+				break;
+		}
+		
+		if(i%FIELD_X == 1){
+			i=1; j++;
+		}
+		if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
+			i++;
+		}
+	}
+	
+	// 敵駒をランダムに配置する
+	shuffle(hand);
+	var i=1, j=1;
+	for(man in hand){
+		switch(hand[man].type){
+			case 'normal':
+				enemyMen.push(new enemyMan(hand[man].name, i++, j));
+				break;
+			case  'air':
+				enemyMen.push(new enemyMan(hand[man].name, i++, j));
+				break;
+			case 'tank':
+				enemyMen.push(new enemyMan(hand[man].name, i++, j));
+				break;
+			case 'immobile':
+				enemyMen.push(new enemyMan(hand[man].name, i++, j));
+				break;
+			case 'kohei':
+				enemyMen.push(new enemyMan(hand[man].name, i++, j));
 				break;
 			default:
 				console.log('ERROR');

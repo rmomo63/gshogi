@@ -5,8 +5,7 @@ var Man = function(name, type, num){
 	this.num = num;
 }
 
-// 駒クラス
-class normalMan{
+class myMan{
 	constructor(name, x, y){
 		this._x = x;
 		this._y = y;
@@ -15,16 +14,20 @@ class normalMan{
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get name(){ return this._name; }
+	get user(){ return 1; }
 	
 	move(_x, _y){
 		this._x = _x;
 		this._y = _y;
 	}
+}
+
+// 駒クラス
+class normalMan extends myMan{
 	
 	canMove(_x, _y){
 		// 駒があるところは移動不可能
-		// TODO 相手の駒は取れるようにする．
-		if(field[_x][_y]) return false;
+		if(field[_x][_y] && field[_x][_y].user) return false;
 		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
@@ -62,26 +65,10 @@ class normalMan{
 		return true;
 	}
 };
-class airMan{
-	
-	constructor(name, x, y){
-		this._x = x;
-		this._y = y;
-		this._name = name;
-	}
-	get x(){ return this._x; }
-	get y(){ return this._y; }
-	get name(){ return this._name; }
-	
-	move(_x, _y){
-		this._x = _x;
-		this._y = _y;
-	}
-	
+class airMan extends myMan{
 	canMove(_x, _y){
 		// 駒があるところは移動不可能
-		// TODO 相手の駒は取れるようにする．
-		if(field[_x][_y]) return false;
+		if(field[_x][_y] && field[_x][_y].user) return false;
 		
 		if(this._x==_x) return true;
 		
@@ -117,25 +104,10 @@ class airMan{
 		return true;
 	}
 }
-class tankMan{
-	constructor(name, x, y){
-		this._x = x;
-		this._y = y;
-		this._name = name;
-	}
-	get x(){ return this._x; }
-	get y(){ return this._y; }
-	get name(){ return this._name; }
-	
-	move(_x, _y){
-		this._x = _x;
-		this._y = _y;
-	}
-	
+class tankMan extends myMan{
 	canMove(_x, _y){
 		// 駒があるところは移動不可能
-		// TODO 相手の駒は取れるようにする．
-		if(field[_x][_y]) return false;
+		if(field[_x][_y] && field[_x][_y].user) return false;
 		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
@@ -181,25 +153,10 @@ class tankMan{
 		return true;
 	}
 }
-class koheiMan{
-	constructor(name, x, y){
-		this._x = x;
-		this._y = y;
-		this._name = name;
-	}
-	get x(){ return this._x; }
-	get y(){ return this._y; }
-	get name(){ return this._name; }
-	
-	move(_x, _y){
-		this._x = _x;
-		this._y = _y;
-	}
-	
+class koheiMan extends myMan{
 	canMove(_x, _y){
 		// 駒があるところは移動不可能
-		// TODO 相手の駒は取れるようにする．
-		if(field[_x][_y]) return false;
+		if(field[_x][_y] && field[_x][_y].user) return false;
 		
 		for(i=this._x+1;i<=_x;i++) if(field[i][_y]) return false;
 		for(i=this._x-1;i>=_x;i--) if(field[i][_y]) return false;
@@ -244,21 +201,7 @@ class koheiMan{
 		return true;
 	}
 }
-class immobileMan{
-	constructor(name, x, y){
-		this._x = x;
-		this._y = y;
-		this._name = name;
-	}
-	get x(){ return this._x; }
-	get y(){ return this._y; }
-	get name(){ return this._name; }
-	
-	move(_x, _y){
-		this._x = _x;
-		this._y = _y;
-	}
-	
+class immobileMan extends myMan{
 	canMove(_x, _y){
 		return false;
 	}
@@ -269,6 +212,18 @@ class immobileMan{
 		}
 		return true;
 	}
+}
+
+class enemyMan{
+	constructor(name, x, y){
+		this._x = x;
+		this._y = y;
+		this._name = name;
+	}
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get name(){ return this._name; }
+	get user(){ return 0; }
 }
 
 // 手クラス
