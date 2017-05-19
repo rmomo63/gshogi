@@ -22,7 +22,7 @@ function init(){
     manType.push(new Man(SHOGI.TANK, 'tank', 2));
     manType.push(new Man(SHOGI.JIRAI, 'immobile', 2));
     manType.push(new Man(SHOGI.SUPAI, 'normal', 1));
-    manType.push(new Man(SHOGI.KIHEI, 'normal', 1));
+    manType.push(new Man(SHOGI.KIHEI, 'tank', 1));
     manType.push(new Man(SHOGI.GUNKI, 'immobile', 1));
     manType.push(new Man(SHOGI.KOHEI, 'kohei', 2));
 	
@@ -348,17 +348,20 @@ function testMen(){
 	
 	// 敵駒をランダムに配置する
 	shuffle(hand);
-	var i=1, j=1;
-	for(man in hand){
-		enemyMen.push(new enemyMan(hand[man].id, i++, j));
+	// var i=1, j=1;
+	// for(man in hand){
+	// 	enemyMen.push(new enemyMan(hand[man].id, i++, j));
 		
-		if(i%FIELD_X == 1){
-			i=1; j++;
-		}
-		if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
-			i++;
-		}
-	}
+	// 	if(i%FIELD_X == 1){
+	// 		i=1; j++;
+	// 	}
+	// 	if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
+	// 		i++;
+	// 	}
+	// }
+	
+	enemyMen.push(new enemyMan(SHOGI.GUNKI, 4, 2));
+	enemyMen.push(new enemyMan(SHOGI.KOHEI, 3, 1));
 }
 
 

@@ -1,4 +1,4 @@
-var DEBUG_ENEMY_MAN = 0;
+var DEBUG_ENEMY_MAN = 1;
 
 // 設定
 var cvs;
