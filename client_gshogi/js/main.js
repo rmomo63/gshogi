@@ -120,7 +120,7 @@ function manDraw(){
 	for(x in field){
 		for(y in field[x]){
 			man = field[x][y];
-			console.log('x:' + x + ', y:' + y + ' ) user:' + field[x][y].user);
+			// console.log('x:' + x + ', y:' + y + ' ) user:' + field[x][y].user);
 			putMan(man);
 		}
 	}
@@ -164,8 +164,39 @@ function onClick(e){
 		// そのマスに動ける場合は
 		if(target.canMove(clickX2game, clickY2game)){
 			// TODO 動いた先に敵の駒がある場合は対戦処理
-			target.move(clickX2game, clickY2game);
-			$('#inst').text('');
+			
+			// 動いた先に駒がある場合
+			if(field[clickX2game][clickY2game] && !field[clickX2game][clickY2game].user){
+				var mMan = target;
+				var eMan = field[clickX2game][clickY2game];
+				console.log('Battle: Attacker(' + mMan.name + ') VS Deffender(' + eMan.name + ')');
+				
+				// 相手の駒が軍旗の場合は，後ろの駒で判定するように変更
+				if(eMan.name == 'gunki' && 
+					clickY2game != 1 && field[clickX2game][clickY2game-1] && !field[clickX2game][clickY2game-1].user){
+						eMan = field[clickX2game][clickY2game-1];
+					
+					console.log('gunki ->' + eMan.name);
+				}
+				
+				var battleResult = standings[mMan.name][eMan.id];
+				
+				console.log('ResultRaw: standings[' + mMan.name + '][' + eMan.id + '] = ' +  battleResult);
+				// 勝ったら
+				if(battleResult == 1) {
+					console.log('Result: Attacker Win');
+				// ひきわけ
+				} else if(battleResult == 2) {
+					console.log('Result: Draw');
+				// 負けたら
+				} else {
+					console.log('Result: Deffender Win');
+				}
+			// ない場合
+			} else {
+				target.move(clickX2game, clickY2game);
+				$('#inst').text('');
+			}
 			
 		// 動けない場合は
 		} else {
@@ -265,19 +296,19 @@ function testMen(){
 	for(man in hand){
 		switch(hand[man].type){
 			case 'normal':
-				myMen.push(new normalMan(hand[man].name, i++, j));
+				myMen.push(new normalMan(hand[man].id, hand[man].name, i++, j));
 				break;
 			case  'air':
-				myMen.push(new airMan(hand[man].name, i++, j));
+				myMen.push(new airMan(hand[man].id, hand[man].name, i++, j));
 				break;
 			case 'tank':
-				myMen.push(new tankMan(hand[man].name, i++, j));
+				myMen.push(new tankMan(hand[man].id, hand[man].name, i++, j));
 				break;
 			case 'immobile':
-				myMen.push(new immobileMan(hand[man].name, i++, j));
+				myMen.push(new immobileMan(hand[man].id, hand[man].name, i++, j));
 				break;
 			case 'kohei':
-				myMen.push(new koheiMan(hand[man].name, i++, j));
+				myMen.push(new koheiMan(hand[man].id, hand[man].name, i++, j));
 				break;
 			default:
 				console.log('ERROR');
@@ -296,26 +327,7 @@ function testMen(){
 	shuffle(hand);
 	var i=1, j=1;
 	for(man in hand){
-		switch(hand[man].type){
-			case 'normal':
-				enemyMen.push(new enemyMan(hand[man].name, i++, j));
-				break;
-			case  'air':
-				enemyMen.push(new enemyMan(hand[man].name, i++, j));
-				break;
-			case 'tank':
-				enemyMen.push(new enemyMan(hand[man].name, i++, j));
-				break;
-			case 'immobile':
-				enemyMen.push(new enemyMan(hand[man].name, i++, j));
-				break;
-			case 'kohei':
-				enemyMen.push(new enemyMan(hand[man].name, i++, j));
-				break;
-			default:
-				console.log('ERROR');
-				break;
-		}
+		enemyMen.push(new enemyMan(hand[man].id, hand[man].name, i++, j));
 		
 		if(i%FIELD_X == 1){
 			i=1; j++;

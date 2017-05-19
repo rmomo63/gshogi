@@ -7,14 +7,16 @@ var Man = function(id, name, type, num){
 }
 
 class myMan{
-	constructor(name, x, y){
+	constructor(id, name, x, y){
 		this._x = x;
 		this._y = y;
 		this._name = name;
+		this._id = id;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get name(){ return this._name; }
+	get id(){ return this._id; }
 	get user(){ return 1; }
 	
 	move(_x, _y){
@@ -216,7 +218,8 @@ class immobileMan extends myMan{
 }
 
 class enemyMan{
-	constructor(name, x, y){
+	constructor(id, name, x, y){
+	    this._id = id;
 		this._x = x;
 		this._y = y;
 		this._name = name;
@@ -224,6 +227,7 @@ class enemyMan{
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get name(){ return this._name; }
+	get id(){ return this._id; }
 	get user(){ return 0; }
 }
 
