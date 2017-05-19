@@ -1,23 +1,21 @@
 // 駒の情報を格納
-var Man = function(id, name, type, num){
-	this.name = name;
+var Man = function(id, type, num){
 	this.type = type;
 	this.num = num;
 	this.id = id;
 }
 
 class myMan{
-	constructor(id, name, x, y){
+	constructor(id, x, y){
 		this._x = x;
 		this._y = y;
-		this._name = name;
 		this._id = id;
 		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
-	get name(){ return this._name; }
 	get id(){ return this._id; }
+	get name(){ return SHOGI_EN[this._id]; }
 	get live(){ return this._live; }
 	get user(){ return 1; }
 	
@@ -165,10 +163,35 @@ class koheiMan extends myMan{
 		// 自分の駒があるところは移動不可能
 		if(field[_x][_y] && field[_x][_y].user) return false;
 		
-		for(i=this._x+2;i<=_x;i++) if(field[i][_y]) return false;
-		for(i=this._x-2;i>=_x;i--) if(field[i][_y]) return false;
-		for(i=this._y+2;i<=_y;i++) if(field[_x][i]) return false;
-		for(i=this._y-2;i>=_y;i--) if(field[_x][i]) return false;
+		var flg = false;
+		for(i=this._x+1, flg = false;i<=_x;i++){
+			if(field[i][_y] && field[i][_y].user) return false;
+			if(flg || field[i][_y]){
+				flg = true;
+				for(j=this._x+1; j < i; j++) if(field[j][_y]) return false;
+			}
+		}
+		for(i=this._x-1, flg = false;i>=_x;i--){
+			if(field[i][_y] && field[i][_y].user) return false;
+			if(flg || field[i][_y]){
+				flg = true;
+				for(j=this._x-1; j > i; j--) if(field[j][_y]) return false;
+			}
+		}
+		for(i=this._y+1, flg = false;i<=_y;i++){
+			if(field[_x][i] && field[_x][i].user) return false;
+			if(flg || field[_x][i]){
+				flg = true;
+				for(j=this._y+1; j < i; j++) if(field[_x][j]) return false;
+			}
+		}
+		for(i=this._y-1, flg = false;i>=_y;i--){
+			if(field[_x][i] && field[_x][i].user) return false;
+			if(flg || field[_x][i]){
+				flg = true;
+				for(j=this._y-1; j > i; j--) if(field[_x][j]) return false;
+			}
+		}
 		
 		// 壁を超える際は絶対値が1でもfalse
 		if(!(this._x==2 || this._x==5)) {
@@ -222,18 +245,17 @@ class immobileMan extends myMan{
 }
 
 class enemyMan{
-	constructor(id, name, x, y){
+	constructor(id, x, y){
 	    this._id = id;
 		this._x = x;
 		this._y = y;
-		this._name = name;
 		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
-	get name(){ return this._name; }
 	get live(){ return this._live; }
 	get id(){ return this._id; }
+	get name(){ return SHOGI_EN[this._id]; }
 	get user(){ return 0; }
 	
 	death(){ this._live = 0; }

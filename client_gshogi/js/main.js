@@ -7,26 +7,24 @@ window.onload	= function(){
 }
 
 function init(){
-	console.log("--init start--");
-    
     /* 初期手札の準備 */
     var id = 0;
-    manType.push(new Man(id++, 'taisho', 'normal', 1));
-    manType.push(new Man(id++, 'chusho', 'normal', 1));
-    manType.push(new Man(id++, 'shosho', 'normal', 1));
-    manType.push(new Man(id++, 'taisa', 'normal', 1));
-    manType.push(new Man(id++, 'chusa', 'normal', 1));
-    manType.push(new Man(id++, 'shosa', 'normal', 1));
-    manType.push(new Man(id++, 'taii', 'normal', 2));
-    manType.push(new Man(id++, 'chui', 'normal', 2));
-    manType.push(new Man(id++, 'shoi', 'normal', 2));
-    manType.push(new Man(id++, 'hikoki', 'air', 2));
-    manType.push(new Man(id++, 'tank', 'tank', 2));
-    manType.push(new Man(id++, 'jirai', 'immobile', 2));
-    manType.push(new Man(id++, 'supai', 'normal', 1));
-    manType.push(new Man(id++, 'kihei', 'normal', 1));
-    manType.push(new Man(id++, 'gunki', 'immobile', 1));
-    manType.push(new Man(id++, 'kohei', 'kohei', 2));
+    manType.push(new Man(SHOGI.TAISHO, 'normal', 1));
+    manType.push(new Man(SHOGI.CHUSHO, 'normal', 1));
+    manType.push(new Man(SHOGI.SHOSHO, 'normal', 1));
+    manType.push(new Man(SHOGI.TAISA, 'normal', 1));
+    manType.push(new Man(SHOGI.CHUSA, 'normal', 1));
+    manType.push(new Man(SHOGI.SHOSA, 'normal', 1));
+    manType.push(new Man(SHOGI.TAII, 'normal', 2));
+    manType.push(new Man(SHOGI.CHUI, 'normal', 2));
+    manType.push(new Man(SHOGI.SHOI, 'normal', 2));
+    manType.push(new Man(SHOGI.HIKOKI, 'air', 2));
+    manType.push(new Man(SHOGI.TANK, 'tank', 2));
+    manType.push(new Man(SHOGI.JIRAI, 'immobile', 2));
+    manType.push(new Man(SHOGI.SUPAI, 'normal', 1));
+    manType.push(new Man(SHOGI.KIHEI, 'tank', 1));
+    manType.push(new Man(SHOGI.GUNKI, 'immobile', 1));
+    manType.push(new Man(SHOGI.KOHEI, 'kohei', 2));
 	
 	$.when(
 		load()
@@ -35,29 +33,37 @@ function init(){
 		draw();
 		cvs.addEventListener('click', onClick, false);
 	});
-	
-	console.log("--init end--");
 }
 
 function load(){
-	console.log("--load start--");
-	var name = [];
-	var tmp = [];
+	var name;
+	var tmp;
 	for(man in manType){
-		name = manType[man].name;
+		name = manType[man].id;
 		tmp = new Image();
 		tmp.id = getUniqueStr();
-		tmp.src = "img/" + skinName + "/" + name +".png";
-		console.log(name + " ( " + tmp.id + " ) loading.");
-		manImage[name] = tmp;
+		tmp.src = "img/" + skinName + "/" + SHOGI_EN[name] +".png";
+		manImage[SHOGI_EN[name]] = tmp;
 	}
 	
-	console.log("--load end--");
+	// デバッグのため敵の駒も
+	if(DEBUG_ENEMY_MAN){
+		for(man in manType){
+			name = manType[man].id;
+			tmp = new Image();
+			tmp.id = getUniqueStr();
+			tmp.src = "img/enemy/" + SHOGI_EN[name] +".png";
+			manImage[SHOGI_EN[name]+'E'] = tmp;
+		}
+	} else {
+		tmp = new Image();
+		tmp.id = getUniqueStr();
+		tmp.src = "img/" + skinName + "/enemy.png";
+		manImage['enemy'] = tmp;
+	}
 }
 
 function draw(man = null){
-	console.log("--draw start--");
-    
     fieldDraw();
     
     if(man != null){
@@ -67,8 +73,6 @@ function draw(man = null){
     // 駒の表示
     menToField();
     manDraw();
-    
-    console.log("--draw end--")
 }
 
 // 手駒を盤面に配置する
@@ -90,7 +94,7 @@ function menToField(){
 
 // 動ける駒の場所を表示
 function canMoveFieldDraw(man){
-	console.log(man.name + '('+ man.x + ', ' + man.y + ') can move ...');
+	// console.log(man.name + '('+ man.x + ', ' + man.y + ') can move ...');
 	var canMoveCnt = 0;
 	for(x=1;x<=FIELD_X;x++){
 		for(y=1;y<=FIELD_Y;y++){
@@ -100,7 +104,7 @@ function canMoveFieldDraw(man){
 			// 動ける場合は薄い色を出す．
 			// if(!field[x][y] && man.canMove(x, y)){
 			if(man.canMove(x, y)){ // デバッグ用に全マス判定
-				console.log('('+x+', ' +y+')');
+				// console.log('('+x+', ' +y+')');
 				ctx.beginPath();
 				ctx.fillStyle = '#efefef';
 				ctx.fillRect(_calcX2canvas(x, y), _calcY2canvas(x, y), MAN_SIZE_W, MAN_SIZE_H);
@@ -120,7 +124,6 @@ function manDraw(){
 	for(x in field){
 		for(y in field[x]){
 			man = field[x][y];
-			// console.log('x:' + x + ', y:' + y + ' ) user:' + field[x][y].user);
 			putMan(man);
 		}
 	}
@@ -128,11 +131,16 @@ function manDraw(){
 
 /* 駒を座標に配置する */
 function putMan(man){
-	var image = manImage[man.name];
-	ctx.drawImage(manImage[man.name], _calcX2canvas(man.x, man.y), _calcY2canvas(man.x, man.y), MAN_SIZE_W, MAN_SIZE_H);
-    manImage[man.name].addEventListener('load', function() {
-		console.log(man.name + " put " + "(x:" + man.x + ", y:" + man.y + ")");
-		ctx.drawImage(manImage[man.name], _calcX2canvas(man.x, man.y), _calcY2canvas(man.x, man.y), MAN_SIZE_W, MAN_SIZE_H);
+	var image;
+	if(DEBUG_ENEMY_MAN){
+		image = (man.user) ? manImage[man.name] : manImage[man.name + 'E'];
+	} else {
+		image = (man.user) ? manImage[man.name] : manImage['enemy'];
+	}
+	
+	ctx.drawImage(image, _calcX2canvas(man.x, man.y), _calcY2canvas(man.x, man.y), MAN_SIZE_W, MAN_SIZE_H);
+    image.addEventListener('load', function() {
+		ctx.drawImage(image, _calcX2canvas(man.x, man.y), _calcY2canvas(man.x, man.y), MAN_SIZE_W, MAN_SIZE_H);
     }, false);
 }
 
@@ -163,7 +171,6 @@ function onClick(e){
 		
 		// そのマスに動ける場合は
 		if(target.canMove(clickX2game, clickY2game)){
-			// TODO 動いた先に敵の駒がある場合は対戦処理
 			
 			// 動いた先に駒がある場合
 			if(field[clickX2game][clickY2game] && !field[clickX2game][clickY2game].user){
@@ -173,25 +180,29 @@ function onClick(e){
 				console.log('Battle: Attacker(' + mMan.name + ') VS Deffender(' + eMan.name + ')');
 				
 				// 相手の駒が軍旗の場合は，後ろの駒で判定
-				if(eMan.name == 'gunki' && 
-					clickY2game != 1 && field[clickX2game][clickY2game-1] && !field[clickX2game][clickY2game-1].user){
+				if(eMan.name == SHOGI.GUNKI && clickY2game != 1 &&
+					field[clickX2game][clickY2game-1] && !field[clickX2game][clickY2game-1].user){
 					
-					console.log('gunki ->' + eMan.name);
 					tMan = field[clickX2game][clickY2game-1];
+					console.log('gunki ->' + tMan.name);
+				// 司令塔の場合
+				} else if (clickY2game == 2 && clickX2game == FIELD_NONE_BY_SHIRE && !field[clickX2game-1][clickY2game-1].user){
+					
+					tMan = field[FIELD_NONE_BY_SHIRE-1][1];
+					console.log('gunki ->' + tMan.name);
+					
 				} else {
 					tMan = eMan;
 				}
 				
-				console.log('ResultRaw: standings[' + mMan.name + '][' + eMan.id + '] = ');
-				var battleResult = standings[mMan.name][eMan.id];
+				console.log('ResultRaw: standings[' + mMan.id + '][' + tMan.id + '] = ');
+				var battleResult = standings[mMan.id][tMan.id];
 				// 勝ったら
 				if(battleResult == 1) {
 					console.log('Result: Attacker Win');
 					
-					// 自陣を移動
-					mMan.move(clickX2game, clickY2game);
-					// 相手を殺す
-					eMan.death();
+					mMan.move(clickX2game, clickY2game); // 自陣を移動
+					eMan.death(); // 相手を殺す
 				// ひきわけ
 				} else if(battleResult == 2) {
 					console.log('Result: Draw');
@@ -212,7 +223,7 @@ function onClick(e){
 			
 		// 動けない場合は
 		} else {
-			$('#inst').text("Cannot move clicked cell");
+			$('#inst').html("Cannot move clicked cell<br>");
 		}
 		
 		// ステージを戻す
@@ -308,22 +319,21 @@ function testMen(){
 	for(man in hand){
 		switch(hand[man].type){
 			case 'normal':
-				myMen.push(new normalMan(hand[man].id, hand[man].name, i++, j));
+				myMen.push(new normalMan(hand[man].id, i++, j));
 				break;
 			case  'air':
-				myMen.push(new airMan(hand[man].id, hand[man].name, i++, j));
+				myMen.push(new airMan(hand[man].id, i++, j));
 				break;
 			case 'tank':
-				myMen.push(new tankMan(hand[man].id, hand[man].name, i++, j));
+				myMen.push(new tankMan(hand[man].id, i++, j));
 				break;
 			case 'immobile':
-				myMen.push(new immobileMan(hand[man].id, hand[man].name, i++, j));
+				myMen.push(new immobileMan(hand[man].id, i++, j));
 				break;
 			case 'kohei':
-				myMen.push(new koheiMan(hand[man].id, hand[man].name, i++, j));
+				myMen.push(new koheiMan(hand[man].id, i++, j));
 				break;
 			default:
-				console.log('ERROR');
 				break;
 		}
 		
@@ -337,17 +347,20 @@ function testMen(){
 	
 	// 敵駒をランダムに配置する
 	shuffle(hand);
-	var i=1, j=1;
-	for(man in hand){
-		enemyMen.push(new enemyMan(hand[man].id, hand[man].name, i++, j));
+	// var i=1, j=1;
+	// for(man in hand){
+	// 	enemyMen.push(new enemyMan(hand[man].id, i++, j));
 		
-		if(i%FIELD_X == 1){
-			i=1; j++;
-		}
-		if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
-			i++;
-		}
-	}
+	// 	if(i%FIELD_X == 1){
+	// 		i=1; j++;
+	// 	}
+	// 	if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
+	// 		i++;
+	// 	}
+	// }
+	
+	enemyMen.push(new enemyMan(SHOGI.GUNKI, 4, 2));
+	enemyMen.push(new enemyMan(SHOGI.KOHEI, 3, 1));
 }
 
 
