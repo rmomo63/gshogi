@@ -31,3 +31,22 @@ var field = [];
 // 現在の状態を保存しておく
 var stage = 0;
 var target = null;
+
+// 勝敗表 1:win 2:draw 3:loose
+var standings = [];
+// taisho, chusho, shosho, taisa, chusa, shosa, taii, chui, shoi, hikoki, tank, jirai, supai, kihei, gunki, kohei
+standings['taisho'] = [2,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1];
+standings['chusho'] = [3,2,1,1,1,1,1,1,1,1,1,2,1,1,1,1];
+standings['shosho'] = [3,3,2,1,1,1,1,1,1,1,1,2,1,1,1,1];
+standings['taisa']  = [3,3,3,2,1,1,1,1,1,1,1,2,1,1,1,1];
+standings['chusa']  = [3,3,3,3,2,1,1,1,1,1,1,2,1,1,1,1];
+standings['shosa']  = [3,3,3,3,3,2,1,1,1,1,1,2,1,1,1,1];
+standings['taii']   = [3,3,3,3,3,3,2,1,1,3,3,2,1,1,1,1];
+standings['chuii']  = [3,3,3,3,3,3,3,2,1,3,3,2,1,1,1,1];
+standings['shoi']   = [3,3,3,3,3,3,3,3,2,3,3,2,1,1,1,1];
+standings['hikoki'] = [3,3,3,3,3,3,1,1,1,2,1,1,1,1,1,1];
+standings['tank']   = [3,3,3,3,3,3,1,1,1,3,2,2,1,1,1,1];
+standings['jirai']  = [2,2,2,2,2,2,2,2,2,2,3,2,2,2,2,2];
+standings['supai']  = [1,3,3,3,3,3,3,3,3,3,3,2,2,1,1,1]; // check
+standings['kihei']  = [3,3,3,3,3,3,3,3,3,3,3,2,3,2,1,1]; // check
+standings['kohei']  = [3,3,3,3,3,3,3,3,3,3,3,1,3,3,1,2]; // check

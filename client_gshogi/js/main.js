@@ -10,22 +10,23 @@ function init(){
 	console.log("--init start--");
     
     /* 初期手札の準備 */
-    manType.push(new Man('taisho', 'normal', 1));
-    manType.push(new Man('chusho', 'normal', 1));
-    manType.push(new Man('shosho', 'normal', 1));
-    manType.push(new Man('taisa', 'normal', 1));
-    manType.push(new Man('chusa', 'normal', 1));
-    manType.push(new Man('shosa', 'normal', 1));
-    manType.push(new Man('taii', 'normal', 2));
-    manType.push(new Man('chui', 'normal', 2));
-    manType.push(new Man('shoi', 'normal', 2));
-    manType.push(new Man('hikoki', 'air', 2));
-    manType.push(new Man('tank', 'tank', 2));
-    manType.push(new Man('jirai', 'immobile', 2));
-    manType.push(new Man('supai', 'normal', 1));
-    manType.push(new Man('kihei', 'normal', 1));
-    manType.push(new Man('gunki', 'immobile', 1));
-    manType.push(new Man('kohei', 'kohei', 2));
+    var id = 0;
+    manType.push(new Man(id++, 'taisho', 'normal', 1));
+    manType.push(new Man(id++, 'chusho', 'normal', 1));
+    manType.push(new Man(id++, 'shosho', 'normal', 1));
+    manType.push(new Man(id++, 'taisa', 'normal', 1));
+    manType.push(new Man(id++, 'chusa', 'normal', 1));
+    manType.push(new Man(id++, 'shosa', 'normal', 1));
+    manType.push(new Man(id++, 'taii', 'normal', 2));
+    manType.push(new Man(id++, 'chui', 'normal', 2));
+    manType.push(new Man(id++, 'shoi', 'normal', 2));
+    manType.push(new Man(id++, 'hikoki', 'air', 2));
+    manType.push(new Man(id++, 'tank', 'tank', 2));
+    manType.push(new Man(id++, 'jirai', 'immobile', 2));
+    manType.push(new Man(id++, 'supai', 'normal', 1));
+    manType.push(new Man(id++, 'kihei', 'normal', 1));
+    manType.push(new Man(id++, 'gunki', 'immobile', 1));
+    manType.push(new Man(id++, 'kohei', 'kohei', 2));
 	
 	$.when(
 		load()
@@ -157,13 +158,21 @@ function onClick(e){
 		} else {
 			$('#inst').text("Please click your piece");
 		}
+	// 移動する駒を選択している状態でマスをクリック
 	} else if(stage==1){
+		
+		// そのマスに動ける場合は
 		if(target.canMove(clickX2game, clickY2game)){
+			// TODO 動いた先に敵の駒がある場合は対戦処理
 			target.move(clickX2game, clickY2game);
 			$('#inst').text('');
+			
+		// 動けない場合は
 		} else {
 			$('#inst').text("Cannot move clicked cell");
 		}
+		
+		// ステージを戻す
 		stage = 0;
 		target = null;
 		$('#inst').append("Please click your piece");

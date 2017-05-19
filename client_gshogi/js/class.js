@@ -1,8 +1,9 @@
 // 駒の情報を格納
-var Man = function(name, type, num){
+var Man = function(id, name, type, num){
 	this.name = name;
 	this.type = type;
 	this.num = num;
+	this.id = id;
 }
 
 class myMan{
