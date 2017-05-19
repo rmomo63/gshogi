@@ -6,4 +6,29 @@ div#canvasWrapper{
 }
 canvas#shogi {
   border: 1px solid #999;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+
+ul#history{
+  margin: 10px auto;
+  padding: 0;
+  list-style: none;
+  height: 100px;
+  overflow-y: scroll;
+}
+
+ul#history li{
+  margin: 0;
+  padding: 0 5%;
+  border-bottom: 1px dashed #000;
+}
+
+ul#history li:nth-child(odd){
+  background-color: #eee;
+}
+
+ul#history li:hover{
+  background-color: #ddd;
+  font-style: italic;
+  cursor: pointer;
 }

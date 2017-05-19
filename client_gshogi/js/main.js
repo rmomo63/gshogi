@@ -66,9 +66,11 @@ function load(){
 function draw(man = null){
     fieldDraw();
     
+    // 駒がクリックされている場合は動けるマスを表示する
     if(man != null){
     	canMoveFieldDraw(man);
     }
+    
     
     // 駒の表示
     menToField();
@@ -171,6 +173,9 @@ function onClick(e){
 		
 		// そのマスに動ける場合は
 		if(target.canMove(clickX2game, clickY2game)){
+			var fromX = target.x; var fromY = target.y;
+			var moveX = clickX2game; var moveY = clickY2game;
+			var result = '移動';
 			
 			// 動いた先に駒がある場合
 			if(field[clickX2game][clickY2game] && !field[clickX2game][clickY2game].user){
@@ -203,23 +208,33 @@ function onClick(e){
 					
 					mMan.move(clickX2game, clickY2game); // 自陣を移動
 					eMan.death(); // 相手を殺す
+					
+					result = 'vs 敵駒(' + eMan.JPname + ') : 勝ち';
 				// ひきわけ
 				} else if(battleResult == 2) {
 					console.log('Result: Draw');
 					
 					mMan.death();
 					eMan.death();
+					
+					result = 'vs 敵駒(' + eMan.JPname + ') : 引分';
 				// 負けたら
 				} else {
 					console.log('Result: Deffender Win');
 					
 					mMan.death();
+					result = 'vs 敵駒(??) : 負け';
 				}
 			// ない場合
 			} else {
 				target.move(clickX2game, clickY2game);
 				$('#inst').text('');
 			}
+			
+			var hand = new Hand(target, fromX, fromY, moveX, moveY, result);
+			
+			hands.push(hand);
+			drawHistory(hand);
 			
 		// 動けない場合は
 		} else {
@@ -299,6 +314,14 @@ function fieldDraw(){
 	
 }
 
+function drawHistory(hand){
+	var _li = $('<li>');
+	_li.html('[' + hand.time + '] (' + hand._x + ', ' + hand._y + ') -> (' + hand.moveX + ', ' + hand.moveY + ') ' + hand.man.JPname + ' ' + hand.result);
+	console.log(_li);
+	console.log(result);
+	$('#history').prepend(_li);
+}
+
 // ここは多分2人プレイのときはサーバーでやる処理．
 // 
 function testMen(){
@@ -347,23 +370,18 @@ function testMen(){
 	
 	// 敵駒をランダムに配置する
 	shuffle(hand);
-	// var i=1, j=1;
-	// for(man in hand){
-	// 	enemyMen.push(new enemyMan(hand[man].id, i++, j));
+	var i=1, j=1;
+	for(man in hand){
+		enemyMen.push(new enemyMan(hand[man].id, i++, j));
 		
-	// 	if(i%FIELD_X == 1){
-	// 		i=1; j++;
-	// 	}
-	// 	if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
-	// 		i++;
-	// 	}
-	// }
+		if(i%FIELD_X == 1){
+			i=1; j++;
+		}
+		if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
+			i++;
+		}
+	}
 	
-	enemyMen.push(new enemyMan(SHOGI.GUNKI, 4, 2));
-	enemyMen.push(new enemyMan(SHOGI.KOHEI, 3, 1));
-}
-
-
-function changeStage(stage){
-    
+	// enemyMen.push(new enemyMan(SHOGI.GUNKI, 4, 2));
+	// enemyMen.push(new enemyMan(SHOGI.KOHEI, 3, 1));
 }

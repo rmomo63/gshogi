@@ -16,6 +16,7 @@ class myMan{
 	get y(){ return this._y; }
 	get id(){ return this._id; }
 	get name(){ return SHOGI_EN[this._id]; }
+	get JPname(){ return SHOGI_JA[this._id]; }
 	get live(){ return this._live; }
 	get user(){ return 1; }
 	
@@ -244,24 +245,45 @@ class immobileMan extends myMan{
 	}
 }
 
-class enemyMan{
-	constructor(id, x, y){
-	    this._id = id;
-		this._x = x;
-		this._y = y;
-		this._live = 1;
-	}
-	get x(){ return this._x; }
-	get y(){ return this._y; }
-	get live(){ return this._live; }
-	get id(){ return this._id; }
-	get name(){ return SHOGI_EN[this._id]; }
+class enemyMan extends myMan{
 	get user(){ return 0; }
-	
-	death(){ this._live = 0; }
 }
 
 // 手クラス
-var Hand = function(man, coor){
+class Hand{
+	constructor(_man, _x, _y, _moveX, _moveY, _result){
+		this._time = new Date();
+		this._man = _man;
+		this._x = _x;
+		this._y = _y;
+		this._moveX = _moveX;
+		this._moveY = _moveY;
+		this._result = _result;
+	}
+	
+	get man(){ return this._man; }
+	get x(){ return this._x; }
+	get y(){ return this._y; }
+	get moveX(){ return this._moveX; }
+	get moveY(){ return this._moveY; }
+	get result(){ return this._result; }
+	
+	get time(){
+		var h = this._time.getHours();
+		var m = this._time.getMinutes();
+		var s = this._time.getSeconds();
+		
+		if(h < 10){
+			h = "0"+h;
+		}
+		if(m < 10){
+			m = "0"+m;
+		}
+		if(s < 10){
+			s = "0"+s;
+		}
+		
+		return h+':'+m+':'+s;
+	}
 	
 };
