@@ -80,11 +80,11 @@ function menToField(){
     }
     
 	for(man in enemyMen){
-		field[enemyMen[man]._x][enemyMen[man]._y] = enemyMen[man];
+		if(enemyMen[man].live) field[enemyMen[man]._x][enemyMen[man]._y] = enemyMen[man];
 	}
 	
 	for(man in myMen){
-		field[myMen[man]._x][myMen[man]._y] = myMen[man];
+		if(myMen[man].live) field[myMen[man]._x][myMen[man]._y] = myMen[man];
 	}
 }
 
@@ -146,8 +146,8 @@ function onClick(e){
     
 	$("#result").text("You clicked (x: " + _calcX2game(clickX, clickY) + ",y: " + _calcY2game(clickX, clickY) + ")");
 
-	// 何もしていない場合は
-	if(stage==0){
+	// 何もしていない場合で駒を選択した場合
+	if(stage==0 && field[clickX2game][clickY2game]){
 		if(field[clickX2game][clickY2game].user){
 			stage = 1;
 			target = field[clickX2game][clickY2game];
@@ -169,28 +169,40 @@ function onClick(e){
 			if(field[clickX2game][clickY2game] && !field[clickX2game][clickY2game].user){
 				var mMan = target;
 				var eMan = field[clickX2game][clickY2game];
+				var tMan = null;
 				console.log('Battle: Attacker(' + mMan.name + ') VS Deffender(' + eMan.name + ')');
 				
-				// 相手の駒が軍旗の場合は，後ろの駒で判定するように変更
+				// 相手の駒が軍旗の場合は，後ろの駒で判定
 				if(eMan.name == 'gunki' && 
 					clickY2game != 1 && field[clickX2game][clickY2game-1] && !field[clickX2game][clickY2game-1].user){
-						eMan = field[clickX2game][clickY2game-1];
 					
 					console.log('gunki ->' + eMan.name);
+					tMan = field[clickX2game][clickY2game-1];
+				} else {
+					tMan = eMan;
 				}
 				
+				console.log('ResultRaw: standings[' + mMan.name + '][' + eMan.id + '] = ');
 				var battleResult = standings[mMan.name][eMan.id];
-				
-				console.log('ResultRaw: standings[' + mMan.name + '][' + eMan.id + '] = ' +  battleResult);
 				// 勝ったら
 				if(battleResult == 1) {
 					console.log('Result: Attacker Win');
+					
+					// 自陣を移動
+					mMan.move(clickX2game, clickY2game);
+					// 相手を殺す
+					eMan.death();
 				// ひきわけ
 				} else if(battleResult == 2) {
 					console.log('Result: Draw');
+					
+					mMan.death();
+					eMan.death();
 				// 負けたら
 				} else {
 					console.log('Result: Deffender Win');
+					
+					mMan.death();
 				}
 			// ない場合
 			} else {

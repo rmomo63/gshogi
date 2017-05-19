@@ -12,12 +12,16 @@ class myMan{
 		this._y = y;
 		this._name = name;
 		this._id = id;
+		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get name(){ return this._name; }
 	get id(){ return this._id; }
+	get live(){ return this._live; }
 	get user(){ return 1; }
+	
+	death(){ this._live = 0; }
 	
 	move(_x, _y){
 		this._x = _x;
@@ -223,12 +227,16 @@ class enemyMan{
 		this._x = x;
 		this._y = y;
 		this._name = name;
+		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
 	get name(){ return this._name; }
+	get live(){ return this._live; }
 	get id(){ return this._id; }
 	get user(){ return 0; }
+	
+	death(){ this._live = 0; }
 }
 
 // 手クラス
