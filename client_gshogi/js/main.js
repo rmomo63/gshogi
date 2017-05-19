@@ -66,9 +66,11 @@ function load(){
 function draw(man = null){
     fieldDraw();
     
+    // 駒がクリックされている場合は動けるマスを表示する
     if(man != null){
     	canMoveFieldDraw(man);
     }
+    
     
     // 駒の表示
     menToField();
@@ -151,85 +153,89 @@ function onClick(e){
     
     var clickX2game = _calcX2game(clickX, clickY);
     var clickY2game = _calcY2game(clickX, clickY);
-    
-	$("#result").text("You clicked (x: " + _calcX2game(clickX, clickY) + ",y: " + _calcY2game(clickX, clickY) + ")");
-
+    var clickMan = field[clickX2game][clickY2game];
 	// 何もしていない場合で駒を選択した場合
-	if(stage==0 && field[clickX2game][clickY2game]){
-		if(field[clickX2game][clickY2game].user){
+	if(stage==0 && clickMan){
+		// 自分の駒の場合は動ける範囲を描画
+		if(clickMan.user){
 			stage = 1;
-			target = field[clickX2game][clickY2game];
-			$('#inst').text("You can move this piece");
+			target = clickMan;
 			
 			draw(target);
-			
+		// 相手の駒の場合はラベルを付ける処理
 		} else {
-			$('#inst').text("Please click your piece");
+			var labelSelectUl = $('<ul>');
+			labelSelectUl.attr('id', clickMan.id);
+			
+			for(i in SHOGI){
+				var labelLi = $('<li>');
+				labelLi.attr('id', i);
+				labelLi.text(SHOGI_JA)
+			}
+			
+			console.log(labelSelectUl);
 		}
 	// 移動する駒を選択している状態でマスをクリック
 	} else if(stage==1){
 		
 		// そのマスに動ける場合は
 		if(target.canMove(clickX2game, clickY2game)){
+			var fromX = target.x; var fromY = target.y;
+			var moveX = clickX2game; var moveY = clickY2game;
+			var result = '移動';
 			
 			// 動いた先に駒がある場合
-			if(field[clickX2game][clickY2game] && !field[clickX2game][clickY2game].user){
+			if(clickMan && !clickMan.user){
 				var mMan = target;
-				var eMan = field[clickX2game][clickY2game];
+				var eMan = clickMan;
 				var tMan = null;
-				console.log('Battle: Attacker(' + mMan.name + ') VS Deffender(' + eMan.name + ')');
 				
 				// 相手の駒が軍旗の場合は，後ろの駒で判定
 				if(eMan.name == SHOGI.GUNKI && clickY2game != 1 &&
 					field[clickX2game][clickY2game-1] && !field[clickX2game][clickY2game-1].user){
 					
 					tMan = field[clickX2game][clickY2game-1];
-					console.log('gunki ->' + tMan.name);
 				// 司令塔の場合
 				} else if (clickY2game == 2 && clickX2game == FIELD_NONE_BY_SHIRE && !field[clickX2game-1][clickY2game-1].user){
-					
 					tMan = field[FIELD_NONE_BY_SHIRE-1][1];
-					console.log('gunki ->' + tMan.name);
-					
 				} else {
 					tMan = eMan;
 				}
 				
-				console.log('ResultRaw: standings[' + mMan.id + '][' + tMan.id + '] = ');
 				var battleResult = standings[mMan.id][tMan.id];
 				// 勝ったら
 				if(battleResult == 1) {
-					console.log('Result: Attacker Win');
-					
 					mMan.move(clickX2game, clickY2game); // 自陣を移動
 					eMan.death(); // 相手を殺す
+					result = 'vs 敵駒(' + eMan.JPname + ') : 勝ち';
 				// ひきわけ
 				} else if(battleResult == 2) {
-					console.log('Result: Draw');
-					
 					mMan.death();
 					eMan.death();
+					result = 'vs 敵駒(' + eMan.JPname + ') : 引分';
 				// 負けたら
 				} else {
-					console.log('Result: Deffender Win');
-					
 					mMan.death();
+					result = 'vs 敵駒(??) : 負け';
 				}
 			// ない場合
 			} else {
 				target.move(clickX2game, clickY2game);
-				$('#inst').text('');
 			}
+			
+			var hand = new Hand(target, fromX, fromY, moveX, moveY, result);
+			
+			hands.push(hand);
+			drawHistory(hand);
 			
 		// 動けない場合は
 		} else {
-			$('#inst').html("Cannot move clicked cell<br>");
 		}
 		
 		// ステージを戻す
 		stage = 0;
 		target = null;
-		$('#inst').append("Please click your piece");
+		
 		draw();
 	}
 }
@@ -299,6 +305,12 @@ function fieldDraw(){
 	
 }
 
+function drawHistory(hand){
+	var _li = $('<li>');
+	_li.html('[' + hand.time + '] (' + hand._x + ', ' + hand._y + ') -> (' + hand.moveX + ', ' + hand.moveY + ') ' + '<span>' + hand.man.JPname + '</span>' + ' ' + hand.result);
+	$('#history').prepend(_li);
+}
+
 // ここは多分2人プレイのときはサーバーでやる処理．
 // 
 function testMen(){
@@ -319,19 +331,19 @@ function testMen(){
 	for(man in hand){
 		switch(hand[man].type){
 			case 'normal':
-				myMen.push(new normalMan(hand[man].id, i++, j));
+				myMen.push(new normalMan(hand[man].id, getUniqueStr(), i++, j));
 				break;
 			case  'air':
-				myMen.push(new airMan(hand[man].id, i++, j));
+				myMen.push(new airMan(hand[man].id, getUniqueStr(), i++, j));
 				break;
 			case 'tank':
-				myMen.push(new tankMan(hand[man].id, i++, j));
+				myMen.push(new tankMan(hand[man].id, getUniqueStr(), i++, j));
 				break;
 			case 'immobile':
-				myMen.push(new immobileMan(hand[man].id, i++, j));
+				myMen.push(new immobileMan(hand[man].id, getUniqueStr(), i++, j));
 				break;
 			case 'kohei':
-				myMen.push(new koheiMan(hand[man].id, i++, j));
+				myMen.push(new koheiMan(hand[man].id, getUniqueStr(), i++, j));
 				break;
 			default:
 				break;
@@ -347,23 +359,15 @@ function testMen(){
 	
 	// 敵駒をランダムに配置する
 	shuffle(hand);
-	// var i=1, j=1;
-	// for(man in hand){
-	// 	enemyMen.push(new enemyMan(hand[man].id, i++, j));
+	var i=1, j=1;
+	for(man in hand){
+		enemyMen.push(new enemyMan(hand[man].id, getUniqueStr(), i++, j));
 		
-	// 	if(i%FIELD_X == 1){
-	// 		i=1; j++;
-	// 	}
-	// 	if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
-	// 		i++;
-	// 	}
-	// }
-	
-	enemyMen.push(new enemyMan(SHOGI.GUNKI, 4, 2));
-	enemyMen.push(new enemyMan(SHOGI.KOHEI, 3, 1));
-}
-
-
-function changeStage(stage){
-    
+		if(i%FIELD_X == 1){
+			i=1; j++;
+		}
+		if((j==1 || j==FIELD_Y) && i==FIELD_NONE_BY_SHIRE){
+			i++;
+		}
+	}
 }
