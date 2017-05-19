@@ -1,5 +1,8 @@
+
 div#canvasWrapper{
-    margin:0 auto;
+  width: 90%;
+  text-align: center;
+  margin:0 auto;
 }
 canvas#shogi {
   border: 1px solid #999;

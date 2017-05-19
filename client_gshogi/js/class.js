@@ -1,23 +1,21 @@
 // 駒の情報を格納
-var Man = function(id, name, type, num){
-	this.name = name;
+var Man = function(id, type, num){
 	this.type = type;
 	this.num = num;
 	this.id = id;
 }
 
 class myMan{
-	constructor(id, name, x, y){
+	constructor(id, x, y){
 		this._x = x;
 		this._y = y;
-		this._name = name;
 		this._id = id;
 		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
-	get name(){ return this._name; }
 	get id(){ return this._id; }
+	get name(){ return SHOGI_EN[this._id]; }
 	get live(){ return this._live; }
 	get user(){ return 1; }
 	
@@ -222,18 +220,17 @@ class immobileMan extends myMan{
 }
 
 class enemyMan{
-	constructor(id, name, x, y){
+	constructor(id, x, y){
 	    this._id = id;
 		this._x = x;
 		this._y = y;
-		this._name = name;
 		this._live = 1;
 	}
 	get x(){ return this._x; }
 	get y(){ return this._y; }
-	get name(){ return this._name; }
 	get live(){ return this._live; }
 	get id(){ return this._id; }
+	get name(){ return SHOGI_EN[this._id]; }
 	get user(){ return 0; }
 	
 	death(){ this._live = 0; }
