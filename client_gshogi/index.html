@@ -3,13 +3,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>軍人将棋 Online</title>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
   </head>
   <body onload="init();">
     <div id="canvasWrapper">
         <canvas id="shogi" style="width:300px;height:400px;"></canvas>
     </div>
+    <button id="gamestartBtn" onClick="gameStart();" value="1">ゲーム開始</button>
     <ul id="history">
     </ul>
     <div id="labelSelect"></div>

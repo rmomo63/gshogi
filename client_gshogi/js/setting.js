@@ -1,4 +1,4 @@
-var DEBUG_ENEMY_MAN = 1;
+var DEBUG_ENEMY_MAN = 0;
 
 // 設定
 var cvs;
@@ -32,6 +32,7 @@ var field = [];
 var hands = [];
 
 // 現在の状態を保存しておく
+var mode = 0;
 var stage = 0;
 var target = null;
 
