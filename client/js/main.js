@@ -69,7 +69,7 @@ function draw(man = null){
 
 	// 駒がクリックされている場合は動けるマスを表示する
 	if(man != null){
-		canMoveFieldDraw(man);
+		canPMFieldDraw(mode, man);
 	}
 
 	// 駒の表示
@@ -94,28 +94,32 @@ function menToField(){
 	}
 }
 
-// 動ける駒の場所を表示
-function canMoveFieldDraw(man){
+// 動ける駒とおける駒の場所を表示
+function canPMFieldDraw(mode, man){
 	// console.log(man.name + '('+ man.x + ', ' + man.y + ') can move ...');
-	var canMoveCnt = 0;
+	var canCnt = 0;
 	for(x=1;x<=FIELD_X;x++){
 		for(y=1;y<=FIELD_Y;y++){
 			// 司令塔の部分は判定しない．
 			if((x==FIELD_NONE_BY_SHIRE && y==1) || (x==FIELD_NONE_BY_SHIRE && y==FIELD_Y)) continue;
 
-			// 動ける場合は薄い色を出す．
-			// if(!field[x][y] && man.canMove(x, y)){
-			if(man.canMove(x, y)){ // デバッグ用に全マス判定
-				// console.log('('+x+', ' +y+')');
+			var canFlg = false;
+			switch(mode){
+				case 0: canFlg = man.canPut(x, y); break;
+				case 1: canFlg = man.canMove(x, y); break;
+			}
+
+			// 動ける/置ける場合は薄い色を出す．
+			if(canFlg){
 				ctx.beginPath();
 				ctx.fillStyle = '#efefef';
 				ctx.fillRect(_calcX2canvas(x, y), _calcY2canvas(x, y), MAN_SIZE_W, MAN_SIZE_H);
 				ctx.fill();
-				canMoveCnt++;
+				canCnt++;
 			}
 		}
 	}
-	if(canMoveCnt == 0){
+	if(canCnt == 0){
 		stage = 0;
 		target = null;
 		$('#inst').text("Cannot move this piece");
@@ -169,6 +173,7 @@ function onClick(e){
 		if(stage == 0){
 			target = clickMan;
 			stage = 1;
+			draw(target);
 		} else if(stage == 1){
 			var tmpX = target.x;
 			var tmpY = target.y;
