@@ -29,6 +29,9 @@ class myMan{
 		this._x = _x;
 		this._y = _y;
 	}
+
+	canMove(_x, _y){ return false; }
+	canPut(_x, _y){ return false; }
 }
 
 // 駒クラス
@@ -71,6 +74,9 @@ class normalMan extends myMan{
 	}
 
 	canPut(_x, _y){
+		// 敵陣にはおけない
+		if(this._y <= FIELD_Y/2 ) return false;
+
 		return true;
 	}
 };
@@ -110,6 +116,9 @@ class airMan extends myMan{
 	}
 
 	canPut(_x, _y){
+		// 敵陣にはおけない
+		if(this._y <= FIELD_Y/2 ) return false;
+
 		return true;
 	}
 }
@@ -159,6 +168,9 @@ class tankMan extends myMan{
 	}
 
 	canPut(_x, _y){
+		// 敵陣にはおけない
+		if(this._y <= FIELD_Y/2 ) return false;
+
 		return true;
 	}
 }
@@ -232,6 +244,9 @@ class koheiMan extends myMan{
 	}
 
 	canPut(_x, _y){
+		// 敵陣にはおけない
+		if(this._y <= FIELD_Y/2 ) return false;
+
 		return true;
 	}
 }
@@ -241,9 +256,15 @@ class immobileMan extends myMan{
 	}
 
 	canPut(_x, _y){
-		if(this._y==5){
+		// 敵陣にはおけない
+		if(this._y <= FIELD_Y/2 ) return false;
+
+		if(this._y == 5){
 			if(this._x==2 || this._x==5) return false;
 		}
+
+		if(this.id == SHOGI.GUNKI && this._y==8) return false;
+
 		return true;
 	}
 }
