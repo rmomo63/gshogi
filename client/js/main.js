@@ -175,11 +175,12 @@ function onClick(e){
 			stage = 1;
 			draw(target);
 		} else if(stage == 1){
-			var tmpX = target.x;
-			var tmpY = target.y;
-			target.move(clickMan.x, clickMan.y);
-			clickMan.move(tmpX, tmpY);
-
+			if(target.canPut(clickX2game, clickY2game)){
+				var tmpX = target.x;
+				var tmpY = target.y;
+				target.move(clickMan.x, clickMan.y);
+				clickMan.move(tmpX, tmpY);
+			}
 			console.log(target.JPname + ' <->' + clickMan.JPname);
 			draw();
 			stage=0;
